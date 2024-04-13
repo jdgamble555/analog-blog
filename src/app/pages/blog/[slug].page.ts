@@ -2,20 +2,23 @@ import { ContentFile, injectContent, MarkdownComponent } from '@analogjs/content
 import { AsyncPipe, NgIf } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { PostAttributes } from './models';
-import { ActivatedRoute, ResolveFn, Router } from '@angular/router';
+import { ActivatedRoute, ResolveFn } from '@angular/router';
 import { RouteMeta } from '@analogjs/router';
-import { firstValueFrom, map, skip, switchMap, tap } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { useAsyncTransferState } from '../transfer';
 
 type ContentResolver = ContentFile<PostAttributes | Record<string, never>>;
 
 export const contentResolver: ResolveFn<ContentResolver> = async (route) => {
-    const data = await firstValueFrom(
-        injectContent<PostAttributes>({
-            customFilename: route.params['slug']
-        })
-    );
-    console.log(data);
-    return data;
+
+    return useAsyncTransferState('content', async () => {
+        const data = await firstValueFrom(
+            injectContent<PostAttributes>({
+                customFilename: route.params['slug']
+            })
+        );
+        return data;
+    });
 }
 
 export const routeMeta: RouteMeta = {
@@ -28,7 +31,7 @@ export const routeMeta: RouteMeta = {
     imports: [MarkdownComponent, AsyncPipe, NgIf],
     template: `
     <ng-container *ngIf="post$ as post">
-      <analog-markdown [content]="post.content" />
+      <analog-markdown [content]="post.content"></analog-markdown>
     </ng-container>
   `,
 })
