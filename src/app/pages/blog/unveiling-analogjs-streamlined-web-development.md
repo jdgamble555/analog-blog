@@ -1,6 +1,6 @@
 ---
 title: Unveiling AnalogJS for Streamlined Web Development
-slug: unveiling-analogjs-streamlined-web-development2
+slug: unveiling-analogjs-streamlined-web-development
 description: Discover AnalogJS, a lightweight JavaScript library designed to enhance web development with its modular and efficient approach.
 publishedAt: 4-3-24
 ---

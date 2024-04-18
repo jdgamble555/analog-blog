@@ -1,48 +1,32 @@
-import { Component, inject } from '@angular/core';
+import { Component} from '@angular/core';
 import {
-  ActivatedRoute,
-  ResolveFn,
   RouterLink,
   RouterOutlet
 } from '@angular/router';
-import { AsyncPipe, NgFor } from '@angular/common';
+import { AsyncPipe, NgFor, NgIf } from '@angular/common';
 import { RouteMeta } from '@analogjs/router';
-import { map } from 'rxjs';
-import { ContentFile, injectContentFiles } from '@analogjs/content';
-import { PostAttributes } from './blog/models';
+import { PostAttributes } from '../models';
+import { indexResolver, injectSnapResolver } from '../utils';
 
-type ContentsResolver = ContentFile<PostAttributes>[];
-
-export const contentsResolver: ResolveFn<ContentsResolver> = () => {
-  const files = injectContentFiles<PostAttributes>((contentFile) =>
-    contentFile.filename.includes('/src/content/')
-  );
-  //console.log(files);
-  return files;
-}
   
-
 export const routeMeta: RouteMeta = {
-  resolve: { data: contentsResolver }
+  resolve: { data: indexResolver }
 };
 
 @Component({
   standalone: true,
-  imports: [RouterOutlet, RouterLink, NgFor, AsyncPipe],
+  imports: [RouterOutlet, RouterLink, NgFor, NgIf, AsyncPipe],
   template: `
   <h1>Rocky Billy's Blog</h1>
     <ul>
-      <li *ngFor="let post of posts | async">
+      <li *ngFor="let post of posts">
         <a [routerLink]="['blog', post.slug]">{{
-          post.attributes.title
+          post.title
         }}</a>
       </li>
     </ul>
   `,
 })
 export default class BlogComponent {
-  private route = inject(ActivatedRoute);
-  readonly posts = this.route.data.pipe<ContentsResolver>(
-    map((data) => data['data'])
-  );
+  readonly posts = injectSnapResolver<PostAttributes[]>('data');
 }
